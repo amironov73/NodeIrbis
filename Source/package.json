@@ -1,0 +1,11 @@
+{
+  "name": "nodeirbis",
+  "version": "1.0.0",
+  "description": "IRBIS64 universal client",
+  "main": "NodeIrbis.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alexey Mironov",
+  "license": "MIT"
+}
