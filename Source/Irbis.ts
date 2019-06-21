@@ -1,6 +1,8 @@
 // Простой клиент для ИРБИС64
 
-module NodeIrbis {
+import * as net from "net";
+
+module Irbis {
 
     export const UTF_ENCODING = 'utf8';
     export const ANSI_ENCODING = 'win1251';
@@ -89,7 +91,7 @@ module NodeIrbis {
         0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F, 0x0451, 0x0452,
         0x0453, 0x0454, 0x0455, 0x0456, 0x0457, 0x0458, 0x0459, 0x045A, 0x045B, 0x045C, 0x045E, 0x045F, 0x0490, 0x0491, 0x2013, 0x2014,
         0x2018, 0x2019, 0x201A, 0x201C, 0x201D, 0x201E, 0x2020, 0x2021, 0x2022, 0x2026, 0x2030, 0x2039, 0x203A, 0x20AC, 0x2116, 0x2122
-    ];
+    ]; // _cp1251_from_unicode
 
     const _cp1251_xlat = [
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -108,7 +110,7 @@ module NodeIrbis {
         0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF, 0xB8, 0x90,
         0x83, 0xBA, 0xBE, 0xB3, 0xBF, 0xBC, 0x9A, 0x9C, 0x9E, 0x9D, 0xA2, 0x9F, 0xA5, 0xB4, 0x96, 0x97,
         0x91, 0x92, 0x82, 0x93, 0x94, 0x84, 0x86, 0x87, 0x95, 0x85, 0x89, 0x8B, 0x9B, 0x88, 0xB9, 0x99
-    ];
+    ]; // _cp1251_xlat
 
     const _cp1251_to_unicode = [
         0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F,
@@ -127,7 +129,7 @@ module NodeIrbis {
         0x0420, 0x0421, 0x0422, 0x0423, 0x0424, 0x0425, 0x0426, 0x0427, 0x0428, 0x0429, 0x042A, 0x042B, 0x042C, 0x042D, 0x042E, 0x042F,
         0x0430, 0x0431, 0x0432, 0x0433, 0x0434, 0x0435, 0x0436, 0x0437, 0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E, 0x043F,
         0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F
-    ];
+    ]; // _cp1251_to_unicode
 
     /**
      * Преобразование CP1251 в строку.
@@ -146,7 +148,7 @@ module NodeIrbis {
         }
 
         return result;
-    }
+    } // function cp1251_to_unicode
 
     /**
      * Преобразование строки в CP1251.
@@ -168,7 +170,7 @@ module NodeIrbis {
         }
 
         return result;
-    }
+    } // function cp1251_from_unicode
 
     /**
      * Преобразование строки в UTF-8.
@@ -177,7 +179,7 @@ module NodeIrbis {
      */
     export function utf8_from_unicode(text: string) : Buffer {
         return Buffer.from(text, 'utf8');
-    }
+    } // function utf8_from_unicode
 
     /**
      * Преобразование UTF-8 в строку.
@@ -186,7 +188,7 @@ module NodeIrbis {
      */
     export function utf8_to_unicode(buf: Buffer) : string {
         return buf.toString('utf8');
-    }
+    } // function utf8_to_unicode
 
     /**
      * Удаление комментариев из строки.
@@ -299,14 +301,14 @@ module NodeIrbis {
      */
     function readRecordCodes(): number [] {
         return [-201, -600, -602, -603];
-    }
+    } // function readRecordCodes
 
     /**
      * @return array "Хорошие" коды для readTerms.
      */
     function readTermCodes() : number[] {
         return [-202, -203, -204];
-    }
+    } // function readTermCodes
 
     /**
      * Замена переводов строки с ИРБИСных на обычные.
@@ -316,7 +318,7 @@ module NodeIrbis {
      */
     export function irbisToDos(text: string) : string {
         return text.replace(IRBIS_DELIMITER, "\n");
-    }
+    } // function irbisToDos
 
     /**
      * Разбивка текста на строки по ИРБИСным разделителям.
@@ -326,7 +328,7 @@ module NodeIrbis {
      */
     export function irbisToLines(text: string) : string[] {
         return text.split(IRBIS_DELIMITER);
-    }
+    } // function irbisToLines
 
     /**
      * Получение описания по коду ошибки, возвращенному сервером.
@@ -1780,7 +1782,7 @@ module NodeIrbis {
          */
         private buffer: Buffer;
 
-        constructor(connection: IrbisConnection, command: string) {
+        constructor(connection: Connection, command: string) {
             this.buffer = Buffer.alloc(100);
 
             this.addAnsi(command).newLine();
@@ -1835,7 +1837,7 @@ module NodeIrbis {
          */
         public debugDump() : void {
             console.log(this.buffer);
-        }
+        } // method debugDump
 
         /**
          * Добавляем перевод строки.
@@ -1846,8 +1848,13 @@ module NodeIrbis {
             this.buffer = Buffer.concat([this.buffer, tail]);
 
             return this;
+        } // method newLine
+
+        public toString() : string {
+            return this.buffer.toString();
         }
-    }
+
+    } // class ClientQuery
 
     /**
      * Ответ сервера.
@@ -2036,12 +2043,12 @@ module NodeIrbis {
 
             return result;
         }
-    }
+    } // class ServerResponse
 
     /**
      * Подключение к ИРБИС-серверу.
      */
-    export class IrbisConnection {
+    export class Connection {
         /**
          * Адрес сервера (можно как my.domain.com,
          * так и 192.168.1.1).
@@ -2115,7 +2122,7 @@ module NodeIrbis {
          * @param mfn MFN, подлежащий актуализации.
          * @return boolean Признак успешности операции.
          */
-        public actualizeRecord(database: string, mfn: number) : boolean {
+        public async actualizeRecord(database: string, mfn: number) : Promise<boolean> {
             if (!this.connected) {
                 return false;
             }
@@ -2123,17 +2130,17 @@ module NodeIrbis {
             let query = new ClientQuery(this, 'F');
             query.addAnsi(database).newLine();
             query.add(mfn).newLine();
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode();
 
             return true;
-        }
+        } // method actualizeRecord
 
         /**
          * Подключение к серверу ИРБИС64.
          * @return boolean Признак успешности операции.
          */
-        public connect() : boolean {
+        public async connect() : Promise<boolean> {
             if (this.connected) {
                 return true;
             }
@@ -2146,7 +2153,7 @@ module NodeIrbis {
                 query.addAnsi(this.username).newLine();
                 query.addAnsi(this.password);
 
-                let response = this.execute(query);
+                let response = await this.execute(query);
                 response.getReturnCode();
                 if (response.returnCode == -3337) {
                     continue;
@@ -2163,7 +2170,7 @@ module NodeIrbis {
 
                 return true;
             }
-        }
+        } // method connect
 
         /**
          * Создание базы данных.
@@ -2173,7 +2180,7 @@ module NodeIrbis {
          * @param readerAccess Читатель будет иметь доступ?
          * @return boolean Признак успешности операции.
          */
-        public createDatabase(database: string, description: string, readerAccess: number = 1) : boolean {
+        public async createDatabase(database: string, description: string, readerAccess: number = 1) : Promise<boolean> {
             if (!this.connected) {
                 return false;
             }
@@ -2183,11 +2190,11 @@ module NodeIrbis {
             query.addAnsi(description).newLine();
             query.add(readerAccess).newLine();
 
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode();
 
             return true;
-        }
+        } // method createDatabase
 
         /**
          * Создание словаря в указанной базе данных.
@@ -2195,14 +2202,14 @@ module NodeIrbis {
          * @param database Имя базы данных.
          * @return boolean Признак успешности операции.
          */
-        public createDictionary(database: string) : boolean {
+        public async createDictionary(database: string) : Promise<boolean> {
             if (!this.connected) {
                 return false;
             }
 
             let query = new ClientQuery(this, 'Z');
             query.addAnsi(database).newLine();
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode();
 
             return true;
@@ -2214,18 +2221,18 @@ module NodeIrbis {
          * @param database Имя удаляемой базы данных.
          * @return boolean Признак успешности операции.
          */
-        public deleteDatabase(database: string) : boolean {
+        public async deleteDatabase(database: string) : Promise<boolean> {
             if (!this.connected) {
                 return false;
             }
 
             let query = new ClientQuery(this, 'W');
             query.addAnsi(database).newLine();
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode();
 
             return true;
-        }
+        } // method deleteDatabase
 
         /**
          * Удаление записи по её MFN.
@@ -2233,10 +2240,19 @@ module NodeIrbis {
          * @param mfn MFN удаляемой записи.
          * @return boolean Признак успешности операции.
          */
-        public deleteRecord(mfn: number) : boolean {
-            // TODO implement
-            return false;
-        }
+        public async deleteRecord(mfn: number) : Promise<boolean> {
+            let record = await this.readRecord(mfn);
+            if (!record) {
+                return false;
+            }
+
+            if (!record.isDeleted()) {
+                record.status |= LOGICALLY_DELETED;
+                await this.writeRecord(record);
+            }
+
+            return true;
+        } // method deleteRecord
 
         /**
          *  Отключение от сервера.
@@ -2244,14 +2260,14 @@ module NodeIrbis {
          *  @return boolean Признак успешности операции
          *  (по факту всегда true).
          */
-        public disconnect() : boolean {
+        public async disconnect() : Promise<boolean> {
             if (!this.connected) {
                 return true;
             }
 
             let query = new ClientQuery(this, 'B');
             query.addAnsi(this.username);
-            this.execute(query);
+            await this.execute(query);
             this.connected = false;
 
             return true;
@@ -2264,10 +2280,12 @@ module NodeIrbis {
          * @param query Клиентский запрос.
          * @return ServerResponse Ответ сервера.
          */
-        public execute(query: ClientQuery) : ServerResponse {
+        public async execute(query: ClientQuery) : Promise<ServerResponse> {
             // TODO implement
 
             query.debugDump();
+            const payload = query.toString();
+            let client = await net.createConnection(this.port, this.host);
 
             this.queryId++;
 
@@ -2282,7 +2300,7 @@ module NodeIrbis {
          * @throws IrbisException
          * @return Результат расформатирования
          */
-        public formatRecord(format: string, mfn: number) : string {
+        public async formatRecord(format: string, mfn: number) : Promise<string> {
             if (!this.connected) {
                 return '';
             }
@@ -2293,7 +2311,7 @@ module NodeIrbis {
             query.addAnsi(prepared).newLine();
             query.add(1).newLine();
             query.add(mfn).newLine();
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode();
             let result = response.readRemainingUtfText();
 
@@ -2307,14 +2325,14 @@ module NodeIrbis {
          * @throws IrbisException
          * @return Максимальный MFN или 0 при ошибке.
          */
-        public getMaxMfn(database: string) : number {
+        public async getMaxMfn(database: string) : Promise<number> {
             if (!this.connected) {
                 return 0;
             }
 
             let query = new ClientQuery(this, 'O');
             query.addAnsi(database);
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode();
 
             return response.returnCode;
@@ -2326,14 +2344,14 @@ module NodeIrbis {
          * @param specification Спецификация.
          * @return Массив строк с именами файлов.
          */
-        public listFiles(specification: string) : string[] {
+        public async listFiles(specification: string) : Promise<string[]> {
             if (!this.connected) {
                 return [];
             }
             
             let query = new ClientQuery(this, '!');
             query.addAnsi(specification).newLine();
-            let response = this.execute(query);
+            let response = await this.execute(query);
             let lines = response.readRemainingAnsiLines();
             let result = [];
             for (let line of lines) {
@@ -2361,13 +2379,13 @@ module NodeIrbis {
          * т. к. код возврата не анализируется.
          * Всегда false при отсутствии подключения.
          */
-        public noOp() : boolean {
+        public async noOp() : Promise<boolean> {
             if (!this.connected) {
                 return false;
             }
 
             let query = new ClientQuery(this, 'N');
-            this.execute(query);
+            await this.execute(query);
 
             return true;
         }
@@ -2385,11 +2403,11 @@ module NodeIrbis {
         /**
          * Чтение указанной записи.
          *
-         * @param integer $mfn MFN записи
          * @return bool|MarcRecord
          * @throws IrbisException
+         * @param mfn
          */
-        public readRecord(mfn: number) : MarcRecord {
+        public async readRecord(mfn: number) : Promise<MarcRecord> {
             if (!this.connected) {
                 return null;
             }
@@ -2397,15 +2415,14 @@ module NodeIrbis {
             let query = new ClientQuery(this, 'C');
             query.addAnsi(this.database).newLine();
             query.add(mfn).newLine();
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode(readRecordCodes());
             let result = new MarcRecord();
             result.decode(response.readRemainingUtfLines());
             result.database = this.database;
 
             return result;
-        }
-
+        } // method readRecord
 
         /**
          * Простой поиск записей.
@@ -2414,14 +2431,14 @@ module NodeIrbis {
          * @return array|bool
          * @throws IrbisException
          */
-        public search(expression: string) : number[] {
+        public async search(expression: string) : Promise<number[]> {
             let parameters = new SearchParameters();
             parameters.expression = expression;
-            let found = this.searchEx(parameters);
+            let found = await this.searchEx(parameters);
             let result = FoundLine.toMfn(found);
 
             return result;
-        }
+        } // method search
 
         /**
          * Поиск записей.
@@ -2430,7 +2447,7 @@ module NodeIrbis {
          * @return array|bool
          * @throws IrbisException
          */
-        public searchEx(parameters: SearchParameters) : FoundLine[] {
+        public async searchEx(parameters: SearchParameters) : Promise<FoundLine[]> {
             // TODO implement
             return [];
         }
@@ -2443,12 +2460,12 @@ module NodeIrbis {
          * @return array
          * @throws IrbisException
          */
-        public searchRead(expression: string, limit: number = 0) {
+        public async searchRead(expression: string, limit: number = 0) : Promise<MarcRecord[]> {
             let parameters = new SearchParameters();
             parameters.expression = expression;
             parameters.format = ALL_FORMAT;
             parameters.numberOfRecords = limit;
-            let found = this.searchEx(parameters);
+            let found = await this.searchEx(parameters);
             if (!found) {
                 return [];
             }
@@ -2464,7 +2481,7 @@ module NodeIrbis {
             }
 
             return result;
-    }
+        }
 
         /**
          * Поиск и считывание одной записи, соответствующей выражению.
@@ -2475,8 +2492,8 @@ module NodeIrbis {
          * @return MarcRecord|null
          * @throws IrbisException
          */
-        public searchSingleRecord(expression: string) : MarcRecord {
-            let found = this.searchRead(expression, 1);
+        public async searchSingleRecord(expression: string) : Promise<MarcRecord> {
+            let found = await this.searchRead(expression, 1);
             if (found.length != 0) {
                 return found[0];
             }
@@ -2504,14 +2521,14 @@ module NodeIrbis {
          * @param database База данных.
          * @return Признак успешности операции
          */
-        public truncateDatabase(database: string) : boolean {
+        public async truncateDatabase(database: string) : Promise<boolean> {
             if (!this.connected) {
                 return false;
             }
 
             let query = new ClientQuery(this, 'S');
             query.addAnsi(database).newLine();
-            this.execute(query);
+            await this.execute(query);
 
             return true;
         }
@@ -2522,14 +2539,14 @@ module NodeIrbis {
          * @param string $database База данных.
          * @return bool
          */
-        public unlockDatabase(database: string) : boolean {
+        public async unlockDatabase(database: string) : Promise<boolean> {
             if (!this.connected) {
                 return false;
             }
 
             let query = new ClientQuery(this, 'U');
             query.addAnsi(database).newLine();
-            this.execute(query);
+            await this.execute(query);
 
             return true;
         }
@@ -2541,19 +2558,19 @@ module NodeIrbis {
          * @return MarcRecord
          * @throws IrbisException
          */
-        public undeleteRecord(mfn: number) : MarcRecord {
-            let record = this.readRecord(mfn);
+        public async undeleteRecord(mfn: number) : Promise<MarcRecord> {
+            let record = await this.readRecord(mfn);
             if (!record) {
                 return record;
             }
 
             if (record.isDeleted()) {
                 record.status &= ~LOGICALLY_DELETED;
-                this.writeRecord(record);
+                await this.writeRecord(record);
             }
 
             return record;
-        }
+        } // method undeleteRecord
 
         /**
          * Разблокирование записей.
@@ -2562,7 +2579,7 @@ module NodeIrbis {
          * @param mfnList Массив MFN.
          * @return Признак успешности операции.
          */
-        public unlockRecords(database : string, mfnList: number[]) : boolean {
+        public async unlockRecords(database : string, mfnList: number[]) : Promise<boolean> {
             if (this.connected) {
                 return false;
             }
@@ -2581,7 +2598,7 @@ module NodeIrbis {
                 query.add(mfn).newLine();
             }
 
-            this.execute(query);
+            await this.execute(query);
 
             return true;
         }
@@ -2596,8 +2613,8 @@ module NodeIrbis {
          * @throws IrbisException
          * @return Новый максимальный MFN или 0 при ошибке.
          */
-        public writeRecord(record: MarcRecord, lockFlag: number = 0, actualize: number = 1,
-            dontParse: boolean = false) : number {
+        public async writeRecord(record: MarcRecord, lockFlag: number = 0, actualize: number = 1,
+            dontParse: boolean = false) : Promise<number> {
             if (!this.connected) {
                 return 0;
             }
@@ -2611,7 +2628,7 @@ module NodeIrbis {
             query.add(lockFlag).newLine();
             query.add(actualize).newLine();
             query.addUtf(record.encode()).newLine();
-            let response = this.execute(query);
+            let response = await this.execute(query);
             response.checkReturnCode();
             if (!dontParse) {
                 record.fields = [];
@@ -2632,9 +2649,9 @@ module NodeIrbis {
          * (включая текст файла).
          * @return Признак успешности операции.
          */
-        public writeTextFile(specification: string) : void {
+        public async writeTextFile(specification: string) : Promise<void> {
             // TODO implement
         }
-    }
+    } // class Connection
 
-}
+} // module Irbis

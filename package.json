@@ -1,8 +1,8 @@
 {
-  "name": "nodeirbis",
+  "name": "irbis",
   "version": "1.0.0",
   "description": "IRBIS64 universal client",
-  "main": "NodeIrbis.js",
+  "main": "Lib/irbis.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
